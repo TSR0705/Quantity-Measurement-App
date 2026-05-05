@@ -368,4 +368,106 @@ public class QuantityMeasurementAppTest {
         Length oneFoot = new Length(1.0, LengthUnit.FEET);
         assertThrows(IllegalArgumentException.class, () -> oneFoot.add(null));
     }
+
+    // ==================== UC7: Addition with Explicit Target Unit ====================
+
+    // TC46: 1 ft + 12 in → explicit FEET = 2 ft
+    @Test
+    public void testAdd_ExplicitTarget_FootPlusInches_InFeet() {
+        Length oneFoot  = new Length(1.0, LengthUnit.FEET);
+        Length twelveIn = new Length(12.0, LengthUnit.INCHES);
+        Length result   = oneFoot.add(twelveIn, LengthUnit.FEET);
+        assertEquals(2.0, result.getValue(), 0.0001);
+    }
+
+    // TC47: 1 ft + 12 in → explicit INCHES = 24 in
+    @Test
+    public void testAdd_ExplicitTarget_FootPlusInches_InInches() {
+        Length oneFoot  = new Length(1.0, LengthUnit.FEET);
+        Length twelveIn = new Length(12.0, LengthUnit.INCHES);
+        Length result   = oneFoot.add(twelveIn, LengthUnit.INCHES);
+        assertEquals(24.0, result.getValue(), 0.0001);
+    }
+
+    // TC48: 1 ft + 12 in → explicit YARDS ≈ 0.6667 yd
+    @Test
+    public void testAdd_ExplicitTarget_FootPlusInches_InYards() {
+        Length oneFoot  = new Length(1.0, LengthUnit.FEET);
+        Length twelveIn = new Length(12.0, LengthUnit.INCHES);
+        Length result   = oneFoot.add(twelveIn, LengthUnit.YARDS);
+        assertEquals(2.0 / 3.0, result.getValue(), 0.0001);
+    }
+
+    // TC49: 1 in + 1 in → explicit CENTIMETERS ≈ 5.08 cm
+    @Test
+    public void testAdd_ExplicitTarget_InchPlusInch_InCentimeters() {
+        Length oneInch1 = new Length(1.0, LengthUnit.INCHES);
+        Length oneInch2 = new Length(1.0, LengthUnit.INCHES);
+        Length result   = oneInch1.add(oneInch2, LengthUnit.CENTIMETERS);
+        assertEquals(5.08, result.getValue(), 0.0001);
+    }
+
+    // TC50: Commutativity — A+B == B+A with same explicit target unit
+    @Test
+    public void testAdd_ExplicitTarget_Commutativity() {
+        Length oneFoot  = new Length(1.0, LengthUnit.FEET);
+        Length sixInch  = new Length(6.0, LengthUnit.INCHES);
+        Length ab = oneFoot.add(sixInch, LengthUnit.INCHES);
+        Length ba = sixInch.add(oneFoot, LengthUnit.INCHES);
+        assertEquals(ab.getValue(), ba.getValue(), 0.0001);
+    }
+
+    // TC51: Zero — 5 ft + 0 in → in YARDS
+    @Test
+    public void testAdd_ExplicitTarget_ZeroLength_InYards() {
+        Length fiveFeet = new Length(5.0, LengthUnit.FEET);
+        Length zeroIn   = new Length(0.0, LengthUnit.INCHES);
+        Length result   = fiveFeet.add(zeroIn, LengthUnit.YARDS);
+        // 5 ft = 60 in = 60/36 yd ≈ 1.6667 yd
+        assertEquals(60.0 / 36.0, result.getValue(), 0.0001);
+    }
+
+    // TC52: Negative — 5 ft + (-2 ft) → in INCHES = 36 in
+    @Test
+    public void testAdd_ExplicitTarget_NegativeLength_InInches() {
+        Length fiveFeet = new Length(5.0, LengthUnit.FEET);
+        Length negTwo   = new Length(-2.0, LengthUnit.FEET);
+        Length result   = fiveFeet.add(negTwo, LengthUnit.INCHES);
+        assertEquals(36.0, result.getValue(), 0.0001);
+    }
+
+    // TC53: Null targetUnit → IllegalArgumentException
+    @Test
+    public void testAdd_ExplicitTarget_NullTargetUnit_ThrowsException() {
+        Length oneFoot  = new Length(1.0, LengthUnit.FEET);
+        Length twelveIn = new Length(12.0, LengthUnit.INCHES);
+        assertThrows(IllegalArgumentException.class, () ->
+            oneFoot.add(twelveIn, null));
+    }
+
+    // TC54: Null thatLength with explicit target → IllegalArgumentException
+    @Test
+    public void testAdd_ExplicitTarget_NullLength_ThrowsException() {
+        Length oneFoot = new Length(1.0, LengthUnit.FEET);
+        assertThrows(IllegalArgumentException.class, () ->
+            oneFoot.add(null, LengthUnit.INCHES));
+    }
+
+    // TC55: Large values — 1000 ft + 500 ft → in INCHES = 18000 in
+    @Test
+    public void testAdd_ExplicitTarget_LargeValues_InInches() {
+        Length thousandFt  = new Length(1000.0, LengthUnit.FEET);
+        Length fiveHundFt  = new Length(500.0, LengthUnit.FEET);
+        Length result      = thousandFt.add(fiveHundFt, LengthUnit.INCHES);
+        assertEquals(18000.0, result.getValue(), 0.0001);
+    }
+
+    // TC56: Small values — precision check with epsilon
+    @Test
+    public void testAdd_ExplicitTarget_SmallValues_Precision() {
+        Length pt1Inch = new Length(0.1, LengthUnit.INCHES);
+        Length pt2Inch = new Length(0.2, LengthUnit.INCHES);
+        Length result  = pt1Inch.add(pt2Inch, LengthUnit.INCHES);
+        assertEquals(0.3, result.getValue(), 0.0001);
+    }
 }
