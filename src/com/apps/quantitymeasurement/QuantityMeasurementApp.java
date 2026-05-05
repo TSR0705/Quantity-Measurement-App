@@ -26,11 +26,9 @@ public class QuantityMeasurementApp {
             throw new IllegalArgumentException("toUnit must not be null");
         }
 
-        // Step 1: convert to base unit (inches)
-        double baseValue = value * fromUnit.getConversionFactor();
-
-        // Step 2: convert from base unit to target unit
-        return baseValue / toUnit.getConversionFactor();
+        // Delegate entirely to LengthUnit — no math in this class
+        double baseValue = fromUnit.convertToBaseUnit(value);
+        return toUnit.convertFromBaseUnit(baseValue);
     }
 
     /**
