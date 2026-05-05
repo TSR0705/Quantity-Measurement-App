@@ -286,4 +286,86 @@ public class QuantityMeasurementAppTest {
         assertThrows(IllegalArgumentException.class, () ->
             QuantityMeasurementApp.convert(Double.POSITIVE_INFINITY, LengthUnit.FEET, LengthUnit.INCHES));
     }
+
+    // ==================== UC6: Length Addition Tests ====================
+
+    // TC37: Same unit — 1 ft + 2 ft = 3 ft
+    @Test
+    public void testAdd_SameUnit_FeetPlusFeet() {
+        Length a      = new Length(1.0, LengthUnit.FEET);
+        Length b      = new Length(2.0, LengthUnit.FEET);
+        Length result = a.add(b);
+        assertEquals(3.0, result.getValue(), 0.0001);
+    }
+
+    // TC38: Cross unit — 1 ft + 12 in = 2 ft (result in caller's unit: FEET)
+    @Test
+    public void testAdd_CrossUnit_FootPlusTwelveInches_ResultInFeet() {
+        Length oneFoot   = new Length(1.0, LengthUnit.FEET);
+        Length twelveIn  = new Length(12.0, LengthUnit.INCHES);
+        Length result    = oneFoot.add(twelveIn);
+        assertEquals(2.0, result.getValue(), 0.0001);
+    }
+
+    // TC39: Cross unit — 12 in + 1 ft = 24 in (result in caller's unit: INCHES)
+    @Test
+    public void testAdd_CrossUnit_TwelveInchesPlusFoot_ResultInInches() {
+        Length twelveIn = new Length(12.0, LengthUnit.INCHES);
+        Length oneFoot  = new Length(1.0, LengthUnit.FEET);
+        Length result   = twelveIn.add(oneFoot);
+        assertEquals(24.0, result.getValue(), 0.0001);
+    }
+
+    // TC40: Yard — 1 yd + 3 ft = 2 yd
+    @Test
+    public void testAdd_CrossUnit_OneYardPlusThreeFeet_ResultInYards() {
+        Length oneYard   = new Length(1.0, LengthUnit.YARDS);
+        Length threeFeet = new Length(3.0, LengthUnit.FEET);
+        Length result    = oneYard.add(threeFeet);
+        assertEquals(2.0, result.getValue(), 0.0001);
+    }
+
+    // TC41: CM — 2.54 cm + 1 in ≈ 5.08 cm
+    @Test
+    public void testAdd_CrossUnit_CmPlusInch_ResultInCm() {
+        Length twoPtFiveFourCm = new Length(2.54, LengthUnit.CENTIMETERS);
+        Length oneInch         = new Length(1.0, LengthUnit.INCHES);
+        Length result          = twoPtFiveFourCm.add(oneInch);
+        assertEquals(5.08, result.getValue(), 0.0001);
+    }
+
+    // TC42: Commutativity — A + B == B + A (compare in base unit via equals)
+    @Test
+    public void testAdd_Commutativity_FeetAndInches() {
+        Length oneFoot  = new Length(1.0, LengthUnit.FEET);
+        Length sixInch  = new Length(6.0, LengthUnit.INCHES);
+        Length ab = oneFoot.add(sixInch);   // result in FEET
+        Length ba = sixInch.add(oneFoot);   // result in INCHES
+        assertTrue(ab.equals(ba));
+    }
+
+    // TC43: Zero — 5 ft + 0 in = 5 ft
+    @Test
+    public void testAdd_ZeroLength_NoChange() {
+        Length fiveFeet = new Length(5.0, LengthUnit.FEET);
+        Length zeroIn   = new Length(0.0, LengthUnit.INCHES);
+        Length result   = fiveFeet.add(zeroIn);
+        assertEquals(5.0, result.getValue(), 0.0001);
+    }
+
+    // TC44: Negative — 5 ft + (-2 ft) = 3 ft
+    @Test
+    public void testAdd_NegativeLength_Subtraction() {
+        Length fiveFeet = new Length(5.0, LengthUnit.FEET);
+        Length negTwo   = new Length(-2.0, LengthUnit.FEET);
+        Length result   = fiveFeet.add(negTwo);
+        assertEquals(3.0, result.getValue(), 0.0001);
+    }
+
+    // TC45: Null argument → IllegalArgumentException
+    @Test
+    public void testAdd_NullArgument_ThrowsException() {
+        Length oneFoot = new Length(1.0, LengthUnit.FEET);
+        assertThrows(IllegalArgumentException.class, () -> oneFoot.add(null));
+    }
 }
