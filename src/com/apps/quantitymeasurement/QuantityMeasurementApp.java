@@ -32,4 +32,16 @@ public class QuantityMeasurementApp {
         // Step 2: convert from base unit to target unit
         return baseValue / toUnit.getConversionFactor();
     }
+
+    /**
+     * UC6: Demonstrates addition of two Length objects.
+     * Delegates entirely to Length.add() — no conversion logic here.
+     *
+     * @param length1 the base length
+     * @param length2 the length to add
+     * @return a new Length representing the sum, in length1's unit
+     */
+    public static Length demonstrateLengthAddition(Length length1, Length length2) {
+        return length1.add(length2);
+    }
 }
