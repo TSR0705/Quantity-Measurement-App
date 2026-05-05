@@ -551,4 +551,173 @@ public class QuantityMeasurementAppTest {
         Length result   = oneFoot.add(twelveIn, LengthUnit.INCHES);
         assertEquals(24.0, result.getValue(), 0.0001);
     }
+
+    // ==================== UC9: Weight Measurement Tests ====================
+
+    // --- Equality ---
+
+    // TC69: Same weight same unit → equal
+    @Test
+    public void testWeightEquality_SameValue_SameUnit() {
+        Weight w1 = new Weight(1.0, WeightUnit.KILOGRAM);
+        Weight w2 = new Weight(1.0, WeightUnit.KILOGRAM);
+        assertTrue(w1.equals(w2));
+    }
+
+    // TC70: Different values same unit → not equal
+    @Test
+    public void testWeightEquality_DifferentValue_SameUnit() {
+        Weight w1 = new Weight(1.0, WeightUnit.KILOGRAM);
+        Weight w2 = new Weight(2.0, WeightUnit.KILOGRAM);
+        assertFalse(w1.equals(w2));
+    }
+
+    // TC71: 1 kg == 1000 g
+    @Test
+    public void testWeightEquality_OneKilogram_EqualTo_ThousandGrams() {
+        Weight oneKg      = new Weight(1.0, WeightUnit.KILOGRAM);
+        Weight thousandG  = new Weight(1000.0, WeightUnit.GRAM);
+        assertTrue(oneKg.equals(thousandG));
+    }
+
+    // TC72: 1 pound == 453.592 g
+    @Test
+    public void testWeightEquality_OnePound_EqualTo_FourFiftyThreePointFiveNineTwo_Grams() {
+        Weight onePound = new Weight(1.0, WeightUnit.POUND);
+        Weight grams    = new Weight(453.592, WeightUnit.GRAM);
+        assertTrue(onePound.equals(grams));
+    }
+
+    // TC73: 1 tonne == 1,000,000 g
+    @Test
+    public void testWeightEquality_OneTonne_EqualTo_OneMillion_Grams() {
+        Weight oneTonne  = new Weight(1.0, WeightUnit.TONNE);
+        Weight millionG  = new Weight(1_000_000.0, WeightUnit.GRAM);
+        assertTrue(oneTonne.equals(millionG));
+    }
+
+    // TC74: kg != pound (inequality)
+    @Test
+    public void testWeightInequality_Kilogram_NotEqualTo_Pound() {
+        Weight oneKg    = new Weight(1.0, WeightUnit.KILOGRAM);
+        Weight onePound = new Weight(1.0, WeightUnit.POUND);
+        assertFalse(oneKg.equals(onePound));
+    }
+
+    // TC75: null comparison → false
+    @Test
+    public void testWeightEquality_NullComparison() {
+        Weight w = new Weight(1.0, WeightUnit.GRAM);
+        assertFalse(w.equals(null));
+    }
+
+    // TC76: same reference → true
+    @Test
+    public void testWeightEquality_SameReference() {
+        Weight w = new Weight(1.0, WeightUnit.KILOGRAM);
+        assertTrue(w.equals(w));
+    }
+
+    // TC77: different class → false
+    @Test
+    public void testWeightEquality_DifferentClass() {
+        Weight w = new Weight(1.0, WeightUnit.GRAM);
+        assertFalse(w.equals("not a weight"));
+    }
+
+    // --- Addition ---
+
+    // TC78: Same unit addition — 200 g + 300 g = 500 g
+    @Test
+    public void testWeightAddition_SameUnit() {
+        Weight w1     = new Weight(200.0, WeightUnit.GRAM);
+        Weight w2     = new Weight(300.0, WeightUnit.GRAM);
+        Weight result = w1.add(w2);
+        assertEquals(500.0, result.getValue(), 0.01);
+    }
+
+    // TC79: Cross unit — 1 kg + 500 g = 1.5 kg
+    @Test
+    public void testWeightAddition_CrossUnit_KgPlusGrams_ResultInKg() {
+        Weight oneKg    = new Weight(1.0, WeightUnit.KILOGRAM);
+        Weight fiveHundG = new Weight(500.0, WeightUnit.GRAM);
+        Weight result   = oneKg.add(fiveHundG);
+        assertEquals(1.5, result.getValue(), 0.01);
+    }
+
+    // TC80: Explicit target — 1 kg + 500 g → in GRAMS = 1500 g
+    @Test
+    public void testWeightAddition_ExplicitTarget_KgPlusGrams_InGrams() {
+        Weight oneKg     = new Weight(1.0, WeightUnit.KILOGRAM);
+        Weight fiveHundG = new Weight(500.0, WeightUnit.GRAM);
+        Weight result    = oneKg.add(fiveHundG, WeightUnit.GRAM);
+        assertEquals(1500.0, result.getValue(), 0.01);
+    }
+
+    // TC81: Null addition → IllegalArgumentException
+    @Test
+    public void testWeightAddition_NullArgument_ThrowsException() {
+        Weight w = new Weight(1.0, WeightUnit.GRAM);
+        assertThrows(IllegalArgumentException.class, () -> w.add(null));
+    }
+
+    // TC82: Null target unit → IllegalArgumentException
+    @Test
+    public void testWeightAddition_NullTargetUnit_ThrowsException() {
+        Weight w1 = new Weight(1.0, WeightUnit.GRAM);
+        Weight w2 = new Weight(1.0, WeightUnit.GRAM);
+        assertThrows(IllegalArgumentException.class, () -> w1.add(w2, null));
+    }
+
+    // --- WeightUnit conversion methods ---
+
+    // TC83: KILOGRAM.convertToBaseUnit(1) → 1000 g
+    @Test
+    public void testWeightUnit_Kilogram_ConvertToBaseUnit() {
+        assertEquals(1000.0, WeightUnit.KILOGRAM.convertToBaseUnit(1.0), 0.01);
+    }
+
+    // TC84: GRAM.convertToBaseUnit(1) → 1 g
+    @Test
+    public void testWeightUnit_Gram_ConvertToBaseUnit() {
+        assertEquals(1.0, WeightUnit.GRAM.convertToBaseUnit(1.0), 0.01);
+    }
+
+    // TC85: MILLIGRAM.convertToBaseUnit(1000) → 1 g
+    @Test
+    public void testWeightUnit_Milligram_ConvertToBaseUnit_ThousandMg_IsOneGram() {
+        assertEquals(1.0, WeightUnit.MILLIGRAM.convertToBaseUnit(1000.0), 0.01);
+    }
+
+    // TC86: POUND.convertToBaseUnit(1) → 453.592 g
+    @Test
+    public void testWeightUnit_Pound_ConvertToBaseUnit() {
+        assertEquals(453.592, WeightUnit.POUND.convertToBaseUnit(1.0), 0.01);
+    }
+
+    // TC87: TONNE.convertToBaseUnit(1) → 1,000,000 g
+    @Test
+    public void testWeightUnit_Tonne_ConvertToBaseUnit() {
+        assertEquals(1_000_000.0, WeightUnit.TONNE.convertToBaseUnit(1.0), 0.01);
+    }
+
+    // TC88: KILOGRAM.convertFromBaseUnit(1000) → 1 kg
+    @Test
+    public void testWeightUnit_Kilogram_ConvertFromBaseUnit() {
+        assertEquals(1.0, WeightUnit.KILOGRAM.convertFromBaseUnit(1000.0), 0.01);
+    }
+
+    // TC89: NaN → IllegalArgumentException
+    @Test
+    public void testWeightUnit_ConvertToBaseUnit_NaN_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+            WeightUnit.GRAM.convertToBaseUnit(Double.NaN));
+    }
+
+    // TC90: Infinity → IllegalArgumentException
+    @Test
+    public void testWeightUnit_ConvertFromBaseUnit_Infinity_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+            WeightUnit.KILOGRAM.convertFromBaseUnit(Double.POSITIVE_INFINITY));
+    }
 }
