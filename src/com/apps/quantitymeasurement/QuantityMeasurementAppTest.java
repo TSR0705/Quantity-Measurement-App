@@ -191,4 +191,99 @@ public class QuantityMeasurementAppTest {
         Length yard1 = new Length(1.0, LengthUnit.YARDS);
         assertTrue(yard1.equals(yard1));
     }
+
+    // ==================== UC5: Unit-to-Unit Conversion Tests ====================
+
+    // TC24: 1 foot → 12 inches
+    @Test
+    public void testConvert_OneFoot_ToInches() {
+        double result = QuantityMeasurementApp.convert(1.0, LengthUnit.FEET, LengthUnit.INCHES);
+        assertEquals(12.0, result, 0.0001);
+    }
+
+    // TC25: 24 inches → 2 feet
+    @Test
+    public void testConvert_TwentyFourInches_ToFeet() {
+        double result = QuantityMeasurementApp.convert(24.0, LengthUnit.INCHES, LengthUnit.FEET);
+        assertEquals(2.0, result, 0.0001);
+    }
+
+    // TC26: 1 yard → 36 inches
+    @Test
+    public void testConvert_OneYard_ToInches() {
+        double result = QuantityMeasurementApp.convert(1.0, LengthUnit.YARDS, LengthUnit.INCHES);
+        assertEquals(36.0, result, 0.0001);
+    }
+
+    // TC27: 6 feet → 2 yards
+    @Test
+    public void testConvert_SixFeet_ToYards() {
+        double result = QuantityMeasurementApp.convert(6.0, LengthUnit.FEET, LengthUnit.YARDS);
+        assertEquals(2.0, result, 0.0001);
+    }
+
+    // TC28: 2.54 cm → 1 inch
+    @Test
+    public void testConvert_TwoPointFiveFourCm_ToInches() {
+        double result = QuantityMeasurementApp.convert(2.54, LengthUnit.CENTIMETERS, LengthUnit.INCHES);
+        assertEquals(1.0, result, 0.0001);
+    }
+
+    // TC29: Round-trip — convert A→B→A should return original value
+    @Test
+    public void testConvert_RoundTrip_FeetToInchesAndBack() {
+        double original = 5.0;
+        double toInches = QuantityMeasurementApp.convert(original, LengthUnit.FEET, LengthUnit.INCHES);
+        double backToFeet = QuantityMeasurementApp.convert(toInches, LengthUnit.INCHES, LengthUnit.FEET);
+        assertEquals(original, backToFeet, 0.0001);
+    }
+
+    // TC30: Zero value always converts to zero
+    @Test
+    public void testConvert_ZeroValue_AlwaysZero() {
+        double result = QuantityMeasurementApp.convert(0.0, LengthUnit.FEET, LengthUnit.INCHES);
+        assertEquals(0.0, result, 0.0001);
+    }
+
+    // TC31: Negative value — -1 foot → -12 inches
+    @Test
+    public void testConvert_NegativeValue_OneFoot_ToInches() {
+        double result = QuantityMeasurementApp.convert(-1.0, LengthUnit.FEET, LengthUnit.INCHES);
+        assertEquals(-12.0, result, 0.0001);
+    }
+
+    // TC32: Same unit — convert(5, FEET, FEET) == 5
+    @Test
+    public void testConvert_SameUnit_ReturnsSameValue() {
+        double result = QuantityMeasurementApp.convert(5.0, LengthUnit.FEET, LengthUnit.FEET);
+        assertEquals(5.0, result, 0.0001);
+    }
+
+    // TC33: Null fromUnit → IllegalArgumentException
+    @Test
+    public void testConvert_NullFromUnit_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+            QuantityMeasurementApp.convert(1.0, null, LengthUnit.INCHES));
+    }
+
+    // TC34: Null toUnit → IllegalArgumentException
+    @Test
+    public void testConvert_NullToUnit_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+            QuantityMeasurementApp.convert(1.0, LengthUnit.FEET, null));
+    }
+
+    // TC35: NaN value → IllegalArgumentException
+    @Test
+    public void testConvert_NaNValue_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+            QuantityMeasurementApp.convert(Double.NaN, LengthUnit.FEET, LengthUnit.INCHES));
+    }
+
+    // TC36: Infinite value → IllegalArgumentException
+    @Test
+    public void testConvert_InfiniteValue_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+            QuantityMeasurementApp.convert(Double.POSITIVE_INFINITY, LengthUnit.FEET, LengthUnit.INCHES));
+    }
 }
