@@ -470,4 +470,85 @@ public class QuantityMeasurementAppTest {
         Length result  = pt1Inch.add(pt2Inch, LengthUnit.INCHES);
         assertEquals(0.3, result.getValue(), 0.0001);
     }
+
+    // ==================== UC8: LengthUnit Conversion Method Tests ====================
+
+    // TC57: FEET.convertToBaseUnit(5) → 5.0 (feet is base unit)
+    @Test
+    public void testLengthUnit_Feet_ConvertToBaseUnit() {
+        assertEquals(5.0, LengthUnit.FEET.convertToBaseUnit(5.0), 0.0001);
+    }
+
+    // TC58: INCHES.convertToBaseUnit(12) → 1.0 foot
+    @Test
+    public void testLengthUnit_Inches_ConvertToBaseUnit_TwelveInches_IsOneFoot() {
+        assertEquals(1.0, LengthUnit.INCHES.convertToBaseUnit(12.0), 0.0001);
+    }
+
+    // TC59: YARDS.convertToBaseUnit(1) → 3.0 feet
+    @Test
+    public void testLengthUnit_Yards_ConvertToBaseUnit_OneYard_IsThreeFeet() {
+        assertEquals(3.0, LengthUnit.YARDS.convertToBaseUnit(1.0), 0.0001);
+    }
+
+    // TC60: CENTIMETERS.convertToBaseUnit(30.48) → 1.0 foot
+    @Test
+    public void testLengthUnit_Centimeters_ConvertToBaseUnit_ThirtyPointFourEight_IsOneFoot() {
+        assertEquals(1.0, LengthUnit.CENTIMETERS.convertToBaseUnit(30.48), 0.0001);
+    }
+
+    // TC61: FEET.convertFromBaseUnit(3) → 3.0 feet
+    @Test
+    public void testLengthUnit_Feet_ConvertFromBaseUnit() {
+        assertEquals(3.0, LengthUnit.FEET.convertFromBaseUnit(3.0), 0.0001);
+    }
+
+    // TC62: INCHES.convertFromBaseUnit(1) → 12.0 inches
+    @Test
+    public void testLengthUnit_Inches_ConvertFromBaseUnit_OneFoot_IsTwelveInches() {
+        assertEquals(12.0, LengthUnit.INCHES.convertFromBaseUnit(1.0), 0.0001);
+    }
+
+    // TC63: YARDS.convertFromBaseUnit(3) → 1.0 yard
+    @Test
+    public void testLengthUnit_Yards_ConvertFromBaseUnit_ThreeFeet_IsOneYard() {
+        assertEquals(1.0, LengthUnit.YARDS.convertFromBaseUnit(3.0), 0.0001);
+    }
+
+    // TC64: CENTIMETERS.convertFromBaseUnit(1) → 30.48 cm
+    @Test
+    public void testLengthUnit_Centimeters_ConvertFromBaseUnit_OneFoot_IsThirtyPointFourEight() {
+        assertEquals(30.48, LengthUnit.CENTIMETERS.convertFromBaseUnit(1.0), 0.0001);
+    }
+
+    // TC65: NaN → IllegalArgumentException from convertToBaseUnit
+    @Test
+    public void testLengthUnit_ConvertToBaseUnit_NaN_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+            LengthUnit.FEET.convertToBaseUnit(Double.NaN));
+    }
+
+    // TC66: Infinity → IllegalArgumentException from convertFromBaseUnit
+    @Test
+    public void testLengthUnit_ConvertFromBaseUnit_Infinity_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+            LengthUnit.INCHES.convertFromBaseUnit(Double.POSITIVE_INFINITY));
+    }
+
+    // TC67: Cross-unit equality still works after UC8 refactor
+    @Test
+    public void testUC8_BackwardCompat_CrossUnitEquality() {
+        Length oneFoot   = new Length(1.0, LengthUnit.FEET);
+        Length twelveIn  = new Length(12.0, LengthUnit.INCHES);
+        assertTrue(oneFoot.equals(twelveIn));
+    }
+
+    // TC68: Addition still works after UC8 refactor
+    @Test
+    public void testUC8_BackwardCompat_Addition_WithExplicitTarget() {
+        Length oneFoot  = new Length(1.0, LengthUnit.FEET);
+        Length twelveIn = new Length(12.0, LengthUnit.INCHES);
+        Length result   = oneFoot.add(twelveIn, LengthUnit.INCHES);
+        assertEquals(24.0, result.getValue(), 0.0001);
+    }
 }
