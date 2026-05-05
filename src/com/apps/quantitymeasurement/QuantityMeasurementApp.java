@@ -44,4 +44,17 @@ public class QuantityMeasurementApp {
     public static Length demonstrateLengthAddition(Length length1, Length length2) {
         return length1.add(length2);
     }
+
+    /**
+     * UC7: Demonstrates addition of two Length objects with explicit target unit.
+     * Delegates entirely to Length.add(Length, LengthUnit) — no conversion logic here.
+     *
+     * @param length1    the base length
+     * @param length2    the length to add
+     * @param targetUnit the desired unit for the result
+     * @return a new Length representing the sum, in targetUnit
+     */
+    public static Length demonstrateLengthAddition(Length length1, Length length2, LengthUnit targetUnit) {
+        return length1.add(length2, targetUnit);
+    }
 }
