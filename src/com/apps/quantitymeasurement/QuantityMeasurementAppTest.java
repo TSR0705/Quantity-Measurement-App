@@ -41,4 +41,43 @@ public class QuantityMeasurementAppTest {
         QuantityMeasurementApp.Feet feet1 = new QuantityMeasurementApp.Feet(1.0);
         assertTrue(feet1.equals(feet1));
     }
+
+    // ==================== UC2: Inches Equality Tests ====================
+
+    // TC6: Same inch value should be equal
+    @Test
+    public void testInchesEquality_SameValue() {
+        QuantityMeasurementApp.Inches inches1 = new QuantityMeasurementApp.Inches(1.0);
+        QuantityMeasurementApp.Inches inches2 = new QuantityMeasurementApp.Inches(1.0);
+        assertTrue(inches1.equals(inches2));
+    }
+
+    // TC7: Different inch values should not be equal
+    @Test
+    public void testInchesEquality_DifferentValue() {
+        QuantityMeasurementApp.Inches inches1 = new QuantityMeasurementApp.Inches(1.0);
+        QuantityMeasurementApp.Inches inches2 = new QuantityMeasurementApp.Inches(2.0);
+        assertFalse(inches1.equals(inches2));
+    }
+
+    // TC8: Comparison with null should return false
+    @Test
+    public void testInchesEquality_NullComparison() {
+        QuantityMeasurementApp.Inches inches1 = new QuantityMeasurementApp.Inches(1.0);
+        assertFalse(inches1.equals(null));
+    }
+
+    // TC9: Comparison with a different class object should return false
+    @Test
+    public void testInchesEquality_DifferentClass() {
+        QuantityMeasurementApp.Inches inches1 = new QuantityMeasurementApp.Inches(1.0);
+        assertFalse(inches1.equals("not an inches object"));
+    }
+
+    // TC10: Same reference should be equal
+    @Test
+    public void testInchesEquality_SameReference() {
+        QuantityMeasurementApp.Inches inches1 = new QuantityMeasurementApp.Inches(1.0);
+        assertTrue(inches1.equals(inches1));
+    }
 }
