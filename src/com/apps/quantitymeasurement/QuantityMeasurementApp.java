@@ -104,4 +104,44 @@ public class QuantityMeasurementApp {
     public static Weight demonstrateWeightAddition(Weight weight1, Weight weight2, WeightUnit targetUnit) {
         return weight1.add(weight2, targetUnit);
     }
+
+    /**
+     * UC10: Generic conversion using Quantity<U>.
+     * Delegates entirely to Quantity.convertTo() — no math here.
+     *
+     * @param quantity   the source quantity
+     * @param targetUnit the desired unit
+     * @param <U>        the unit type
+     * @return a new Quantity in targetUnit
+     */
+    public static <U extends IMeasurable> Quantity<U> convert(Quantity<U> quantity, U targetUnit) {
+        return quantity.convertTo(targetUnit);
+    }
+
+    /**
+     * UC10: Generic addition using Quantity<U>.
+     * Delegates entirely to Quantity.add() — no math here.
+     *
+     * @param q1  the first quantity
+     * @param q2  the second quantity
+     * @param <U> the unit type
+     * @return a new Quantity in q1's unit representing the sum
+     */
+    public static <U extends IMeasurable> Quantity<U> add(Quantity<U> q1, Quantity<U> q2) {
+        return q1.add(q2);
+    }
+
+    /**
+     * UC10: Generic addition with explicit target unit using Quantity<U>.
+     * Delegates entirely to Quantity.add(Quantity, U) — no math here.
+     *
+     * @param q1         the first quantity
+     * @param q2         the second quantity
+     * @param targetUnit the desired unit for the result
+     * @param <U>        the unit type
+     * @return a new Quantity in targetUnit representing the sum
+     */
+    public static <U extends IMeasurable> Quantity<U> add(Quantity<U> q1, Quantity<U> q2, U targetUnit) {
+        return q1.add(q2, targetUnit);
+    }
 }
