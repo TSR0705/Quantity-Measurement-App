@@ -21,7 +21,7 @@ import java.math.RoundingMode;
  * <p><b>Single Responsibility:</b> this enum is the single source of truth
  * for unit-to-base and base-to-unit conversion. {@link Weight} contains NO math.
  */
-public enum WeightUnit {
+public enum WeightUnit implements IMeasurable {
 
     /** 1 milligram = 0.001 grams */
     MILLIGRAM(0.001),
@@ -91,5 +91,10 @@ public enum WeightUnit {
             throw new IllegalArgumentException(
                 "Value must be finite, got: " + value);
         }
+    }
+
+    @Override
+    public String getUnitName() {
+        return name();
     }
 }

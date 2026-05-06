@@ -8,7 +8,7 @@ package com.apps.quantitymeasurement;
  * Single Responsibility: this enum is the single source of truth for
  * unit-to-base and base-to-unit conversion. Length contains NO math.
  */
-public enum LengthUnit {
+public enum LengthUnit implements IMeasurable {
 
     FEET(1.0),
     INCHES(1.0 / 12.0),
@@ -54,5 +54,10 @@ public enum LengthUnit {
             throw new IllegalArgumentException(
                 "Value must be finite, got: " + value);
         }
+    }
+
+    @Override
+    public String getUnitName() {
+        return name();
     }
 }
