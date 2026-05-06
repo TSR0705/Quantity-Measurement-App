@@ -144,4 +144,44 @@ public class QuantityMeasurementApp {
     public static <U extends IMeasurable> Quantity<U> add(Quantity<U> q1, Quantity<U> q2, U targetUnit) {
         return q1.add(q2, targetUnit);
     }
+
+    /**
+     * UC12: Generic subtraction using Quantity<U>.
+     * Delegates entirely to Quantity.subtract() — no math here.
+     *
+     * @param q1  the quantity to subtract from
+     * @param q2  the quantity to subtract
+     * @param <U> the unit type
+     * @return a new Quantity in q1's unit representing the difference
+     */
+    public static <U extends IMeasurable> Quantity<U> demonstrateSubtraction(Quantity<U> q1, Quantity<U> q2) {
+        return q1.subtract(q2);
+    }
+
+    /**
+     * UC12: Generic subtraction with explicit target unit using Quantity<U>.
+     * Delegates entirely to Quantity.subtract(Quantity, U) — no math here.
+     *
+     * @param q1         the quantity to subtract from
+     * @param q2         the quantity to subtract
+     * @param targetUnit the desired unit for the result
+     * @param <U>        the unit type
+     * @return a new Quantity in targetUnit representing the difference
+     */
+    public static <U extends IMeasurable> Quantity<U> demonstrateSubtraction(Quantity<U> q1, Quantity<U> q2, U targetUnit) {
+        return q1.subtract(q2, targetUnit);
+    }
+
+    /**
+     * UC12: Generic division using Quantity<U>.
+     * Delegates entirely to Quantity.divide() — no math here.
+     *
+     * @param q1  the dividend
+     * @param q2  the divisor (must not be zero)
+     * @param <U> the unit type
+     * @return the dimensionless ratio q1 / q2
+     */
+    public static <U extends IMeasurable> double demonstrateDivision(Quantity<U> q1, Quantity<U> q2) {
+        return q1.divide(q2);
+    }
 }
