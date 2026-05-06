@@ -1306,7 +1306,189 @@ public class QuantityMeasurementAppTest {
         Quantity<VolumeUnit> one   = new Quantity<>(1.0, VolumeUnit.LITRE);
         assertEquals(3.0, three.divide(one), 1e-6);
     }
+
+    // ==================== UC13: Centralized Arithmetic Refactor Tests ====================
+
+    // --- Validation consistency (all operations reject null the same way) ---
+
+    // TC160: add() null → IllegalArgumentException with consistent message
+    @Test
+    public void testUC13_Validation_Add_NullOther_ConsistentException() {
+        Quantity<LengthUnit> a = new Quantity<>(5.0, LengthUnit.FEET);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> a.add(null));
+        assertTrue(ex.getMessage().contains("null"));
+    }
+
+    // TC161: subtract() null → IllegalArgumentException with consistent message
+    @Test
+    public void testUC13_Validation_Subtract_NullOther_ConsistentException() {
+        Quantity<LengthUnit> a = new Quantity<>(5.0, LengthUnit.FEET);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> a.subtract(null));
+        assertTrue(ex.getMessage().contains("null"));
+    }
+
+    // TC162: divide() null → IllegalArgumentException with consistent message
+    @Test
+    public void testUC13_Validation_Divide_NullOther_ConsistentException() {
+        Quantity<LengthUnit> a = new Quantity<>(5.0, LengthUnit.FEET);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> a.divide(null));
+        assertTrue(ex.getMessage().contains("null"));
+    }
+
+    // TC163: add(other, null) → IllegalArgumentException
+    @Test
+    public void testUC13_Validation_Add_NullTargetUnit_ConsistentException() {
+        Quantity<LengthUnit> a = new Quantity<>(5.0, LengthUnit.FEET);
+        Quantity<LengthUnit> b = new Quantity<>(2.0, LengthUnit.FEET);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> a.add(b, null));
+        assertTrue(ex.getMessage().contains("null"));
+    }
+
+    // TC164: subtract(other, null) → IllegalArgumentException
+    @Test
+    public void testUC13_Validation_Subtract_NullTargetUnit_ConsistentException() {
+        Quantity<LengthUnit> a = new Quantity<>(5.0, LengthUnit.FEET);
+        Quantity<LengthUnit> b = new Quantity<>(2.0, LengthUnit.FEET);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> a.subtract(b, null));
+        assertTrue(ex.getMessage().contains("null"));
+    }
+
+    // --- ArithmeticOperation enum dispatch ---
+
+    // TC165: ADD dispatches correctly — 3 + 4 = 7
+    @Test
+    public void testUC13_EnumDispatch_ADD_CorrectResult() {
+        Quantity<LengthUnit> three = new Quantity<>(3.0, LengthUnit.FEET);
+        Quantity<LengthUnit> four  = new Quantity<>(4.0, LengthUnit.FEET);
+        assertEquals(7.0, three.add(four).getValue(), 1e-6);
+    }
+
+    // TC166: SUBTRACT dispatches correctly — 10 - 3 = 7
+    @Test
+    public void testUC13_EnumDispatch_SUBTRACT_CorrectResult() {
+        Quantity<LengthUnit> ten   = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> three = new Quantity<>(3.0, LengthUnit.FEET);
+        assertEquals(7.0, ten.subtract(three).getValue(), 1e-6);
+    }
+
+    // TC167: DIVIDE dispatches correctly — 10 / 2 = 5
+    @Test
+    public void testUC13_EnumDispatch_DIVIDE_CorrectResult() {
+        Quantity<LengthUnit> ten = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> two = new Quantity<>(2.0, LengthUnit.FEET);
+        assertEquals(5.0, ten.divide(two), 1e-6);
+    }
+
+    // --- Centralized conversion (base-unit pipeline) ---
+
+    // TC168: Cross-unit add uses base-unit pipeline — 1 ft + 12 in = 2 ft
+    @Test
+    public void testUC13_CentralizedConversion_Add_CrossUnit() {
+        Quantity<LengthUnit> oneFoot  = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> twelveIn = new Quantity<>(12.0, LengthUnit.INCHES);
+        assertEquals(2.0, oneFoot.add(twelveIn).getValue(), 1e-6);
+    }
+
+    // TC169: Cross-unit subtract uses base-unit pipeline — 10 ft - 6 in = 9.5 ft
+    @Test
+    public void testUC13_CentralizedConversion_Subtract_CrossUnit() {
+        Quantity<LengthUnit> tenFeet = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> sixIn   = new Quantity<>(6.0, LengthUnit.INCHES);
+        assertEquals(9.5, tenFeet.subtract(sixIn).getValue(), 1e-6);
+    }
+
+    // TC170: Cross-unit divide uses base-unit pipeline — 24 in / 2 ft = 1.0
+    @Test
+    public void testUC13_CentralizedConversion_Divide_CrossUnit() {
+        Quantity<LengthUnit> twentyFourIn = new Quantity<>(24.0, LengthUnit.INCHES);
+        Quantity<LengthUnit> twoFeet      = new Quantity<>(2.0, LengthUnit.FEET);
+        assertEquals(1.0, twentyFourIn.divide(twoFeet), 1e-6);
+    }
+
+    // --- Division-by-zero via centralized handler ---
+
+    // TC171: divide() zero → ArithmeticException with meaningful message
+    @Test
+    public void testUC13_DivisionByZero_MeaningfulMessage() {
+        Quantity<WeightUnit> ten  = new Quantity<>(10.0, WeightUnit.GRAM);
+        Quantity<WeightUnit> zero = new Quantity<>(0.0, WeightUnit.GRAM);
+        ArithmeticException ex = assertThrows(ArithmeticException.class,
+            () -> ten.divide(zero));
+        assertFalse(ex.getMessage().isEmpty());
+    }
+
+    // --- Immutability after refactor ---
+
+    // TC172: add() does not mutate either operand
+    @Test
+    public void testUC13_Immutability_Add_NoMutation() {
+        Quantity<LengthUnit> a = new Quantity<>(5.0, LengthUnit.FEET);
+        Quantity<LengthUnit> b = new Quantity<>(3.0, LengthUnit.FEET);
+        a.add(b);
+        assertEquals(5.0, a.getValue(), 1e-6);
+        assertEquals(3.0, b.getValue(), 1e-6);
+    }
+
+    // TC173: subtract() does not mutate either operand
+    @Test
+    public void testUC13_Immutability_Subtract_NoMutation() {
+        Quantity<LengthUnit> a = new Quantity<>(5.0, LengthUnit.FEET);
+        Quantity<LengthUnit> b = new Quantity<>(3.0, LengthUnit.FEET);
+        a.subtract(b);
+        assertEquals(5.0, a.getValue(), 1e-6);
+        assertEquals(3.0, b.getValue(), 1e-6);
+    }
+
+    // TC174: divide() does not mutate either operand
+    @Test
+    public void testUC13_Immutability_Divide_NoMutation() {
+        Quantity<LengthUnit> a = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> b = new Quantity<>(2.0, LengthUnit.FEET);
+        a.divide(b);
+        assertEquals(10.0, a.getValue(), 1e-6);
+        assertEquals(2.0, b.getValue(), 1e-6);
+    }
+
+    // --- Backward compatibility ---
+
+    // TC175: All three operations produce same results as UC12
+    @Test
+    public void testUC13_BackwardCompat_AllOperations_SameResultsAsUC12() {
+        Quantity<WeightUnit> oneKg     = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> fiveHundG = new Quantity<>(500.0, WeightUnit.GRAM);
+
+        // add: 1 kg + 500 g = 1.5 kg
+        assertEquals(1.5, oneKg.add(fiveHundG).getValue(), 1e-6);
+        // subtract: 1 kg - 500 g = 0.5 kg
+        assertEquals(0.5, oneKg.subtract(fiveHundG).getValue(), 1e-6);
+        // divide: 1 kg / 500 g = 2.0
+        assertEquals(2.0, oneKg.divide(fiveHundG), 1e-6);
+    }
+
+    // TC176: Explicit target unit still works after refactor
+    @Test
+    public void testUC13_BackwardCompat_ExplicitTargetUnit_Add() {
+        Quantity<LengthUnit> oneFoot  = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> twelveIn = new Quantity<>(12.0, LengthUnit.INCHES);
+        Quantity<LengthUnit> result   = oneFoot.add(twelveIn, LengthUnit.INCHES);
+        assertEquals(24.0, result.getValue(), 1e-6);
+    }
+
+    // TC177: Explicit target unit subtract still works after refactor
+    @Test
+    public void testUC13_BackwardCompat_ExplicitTargetUnit_Subtract() {
+        Quantity<LengthUnit> tenFeet = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> sixIn   = new Quantity<>(6.0, LengthUnit.INCHES);
+        Quantity<LengthUnit> result  = tenFeet.subtract(sixIn, LengthUnit.INCHES);
+        assertEquals(114.0, result.getValue(), 1e-6);
+    }
 }
+
 
 
 
