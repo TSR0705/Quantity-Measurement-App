@@ -118,6 +118,68 @@ public class Quantity<U extends IMeasurable> {
     }
 
     /**
+     * Subtracts {@code other} from this quantity, result in THIS quantity's unit.
+     *
+     * @param other the quantity to subtract (must not be null)
+     * @return a new immutable Quantity in this.unit representing the difference
+     * @throws IllegalArgumentException if other is null
+     */
+    public Quantity<U> subtract(Quantity<U> other) {
+        return subtractAndConvert(other, this.unit);
+    }
+
+    /**
+     * Subtracts {@code other} from this quantity, result in the explicit {@code targetUnit}.
+     *
+     * @param other      the quantity to subtract (must not be null)
+     * @param targetUnit the desired unit for the result (must not be null)
+     * @return a new immutable Quantity in targetUnit representing the difference
+     * @throws IllegalArgumentException if other or targetUnit is null
+     */
+    public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
+        return subtractAndConvert(other, targetUnit);
+    }
+
+    /**
+     * Single source of truth for all subtraction logic.
+     * Normalises both quantities to base unit, subtracts, converts to targetUnit.
+     */
+    private Quantity<U> subtractAndConvert(Quantity<U> other, U targetUnit) {
+        if (other == null) {
+            throw new IllegalArgumentException("other must not be null");
+        }
+        if (targetUnit == null) {
+            throw new IllegalArgumentException("targetUnit must not be null");
+        }
+        double thisBase  = this.unit.convertToBaseUnit(this.value);
+        double otherBase = other.unit.convertToBaseUnit(other.value);
+        double diffBase  = thisBase - otherBase;
+        double result    = targetUnit.convertFromBaseUnit(diffBase);
+        return new Quantity<>(result, targetUnit);
+    }
+
+    /**
+     * Divides this quantity by {@code other}, returning a dimensionless scalar.
+     * Both quantities are normalised to base unit before division.
+     *
+     * @param other the divisor (must not be null, must not be zero)
+     * @return the dimensionless ratio this / other
+     * @throws IllegalArgumentException if other is null
+     * @throws ArithmeticException      if other's base-unit value is zero
+     */
+    public double divide(Quantity<U> other) {
+        if (other == null) {
+            throw new IllegalArgumentException("other must not be null");
+        }
+        double thisBase  = this.unit.convertToBaseUnit(this.value);
+        double otherBase = other.unit.convertToBaseUnit(other.value);
+        if (otherBase == 0.0) {
+            throw new ArithmeticException("Division by zero: divisor quantity has zero base-unit value");
+        }
+        return thisBase / otherBase;
+    }
+
+    /**
      * Equality via base-unit comparison with epsilon tolerance.
      * Cross-category quantities (different runtime class of U) are never equal.
      */
