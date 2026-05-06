@@ -720,4 +720,88 @@ public class QuantityMeasurementAppTest {
         assertThrows(IllegalArgumentException.class, () ->
             WeightUnit.KILOGRAM.convertFromBaseUnit(Double.POSITIVE_INFINITY));
     }
+
+    // ==================== UC10: Generic Quantity Tests ====================
+
+    // TC91: Generic length equality — 1 ft == 12 in via Quantity<LengthUnit>
+    @Test
+    public void testGenericQuantity_Length_OneFoot_EqualTo_TwelveInches() {
+        Quantity<LengthUnit> oneFoot   = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> twelveIn  = new Quantity<>(12.0, LengthUnit.INCHES);
+        assertTrue(oneFoot.equals(twelveIn));
+    }
+
+    // TC92: Generic weight equality — 1 kg == 1000 g via Quantity<WeightUnit>
+    @Test
+    public void testGenericQuantity_Weight_OneKg_EqualTo_ThousandGrams() {
+        Quantity<WeightUnit> oneKg      = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> thousandG  = new Quantity<>(1000.0, WeightUnit.GRAM);
+        assertTrue(oneKg.equals(thousandG));
+    }
+
+    // TC93: Generic conversion — 1 ft → 12 in
+    @Test
+    public void testGenericQuantity_ConvertTo_OneFoot_ToInches() {
+        Quantity<LengthUnit> oneFoot = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> result  = oneFoot.convertTo(LengthUnit.INCHES);
+        assertEquals(12.0, result.getValue(), 0.01);
+    }
+
+    // TC94: Generic addition — 1 kg + 500 g = 1.5 kg
+    @Test
+    public void testGenericQuantity_Addition_KgPlusGrams() {
+        Quantity<WeightUnit> oneKg     = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> fiveHundG = new Quantity<>(500.0, WeightUnit.GRAM);
+        Quantity<WeightUnit> result    = oneKg.add(fiveHundG);
+        assertEquals(1.5, result.getValue(), 0.01);
+    }
+
+    // TC95: Generic addition with explicit target — 1 ft + 12 in → 24 in
+    @Test
+    public void testGenericQuantity_Addition_ExplicitTarget_FootPlusInches_InInches() {
+        Quantity<LengthUnit> oneFoot  = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> twelveIn = new Quantity<>(12.0, LengthUnit.INCHES);
+        Quantity<LengthUnit> result   = oneFoot.add(twelveIn, LengthUnit.INCHES);
+        assertEquals(24.0, result.getValue(), 0.01);
+    }
+
+    // TC96: hashCode consistency with equals
+    @Test
+    public void testGenericQuantity_HashCode_ConsistentWithEquals() {
+        Quantity<LengthUnit> oneFoot  = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> twelveIn = new Quantity<>(12.0, LengthUnit.INCHES);
+        assertTrue(oneFoot.equals(twelveIn));
+        assertEquals(oneFoot.hashCode(), twelveIn.hashCode());
+    }
+
+    // TC97: toString returns readable format
+    @Test
+    public void testGenericQuantity_ToString() {
+        Quantity<WeightUnit> oneKg = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        String result = oneKg.toString();
+        assertTrue(result.contains("1.0"));
+        assertTrue(result.contains("KILOGRAM"));
+    }
+
+    // TC98: Null unit → IllegalArgumentException
+    @Test
+    public void testGenericQuantity_NullUnit_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+            new Quantity<>(1.0, (LengthUnit) null));
+    }
+
+    // TC99: NaN value → IllegalArgumentException
+    @Test
+    public void testGenericQuantity_NaNValue_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+            new Quantity<>(Double.NaN, WeightUnit.GRAM));
+    }
+
+    // TC100: Infinity value → IllegalArgumentException
+    @Test
+    public void testGenericQuantity_InfinityValue_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+            new Quantity<>(Double.POSITIVE_INFINITY, LengthUnit.FEET));
+    }
 }
+
