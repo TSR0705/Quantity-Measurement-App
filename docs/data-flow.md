@@ -36,14 +36,14 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["equals(obj)"] --> B{same reference?}
+    A["equals(obj)"] --> B{Same reference}
     B -->|yes| T[true]
-    B -->|no| C{obj null or wrong class?}
+    B -->|no| C{Null or wrong class}
     C -->|yes| F[false]
-    C -->|no| D{unit.getClass() match?}
+    C -->|no| D{Same unit category}
     D -->|no| F
-    D -->|yes| E["convert both to base unit"]
-    E --> G{"|baseA - baseB| < 1e-7"}
+    D -->|yes| E["Convert both to base unit"]
+    E --> G{Difference less than epsilon}
     G -->|yes| T
     G -->|no| F
 ```
@@ -58,8 +58,8 @@ flowchart LR
 
     QL --> EQ
     QW --> EQ
-    EQ --> CC{"unit.getClass() match?<br/>LengthUnit ≠ WeightUnit"}
-    CC -->|no| F[false — always]
+    EQ --> CC{Same unit class}
+    CC -->|LengthUnit vs WeightUnit| F["false — always"]
 ```
 
 The `unit.getClass()` check in `equals()` ensures cross-category comparison always returns `false`, even when using raw types.
