@@ -1032,6 +1032,281 @@ public class QuantityMeasurementAppTest {
         Quantity<WeightUnit> weight = new Quantity<>(1.0, WeightUnit.GRAM);
         assertFalse(vol.equals(weight));
     }
+
+    // ==================== UC12: Subtraction Tests ====================
+
+    // TC129: Same unit — 10 ft - 4 ft = 6 ft
+    @Test
+    public void testSubtract_SameUnit_FeetMinusFeet() {
+        Quantity<LengthUnit> ten  = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> four = new Quantity<>(4.0, LengthUnit.FEET);
+        Quantity<LengthUnit> result = ten.subtract(four);
+        assertEquals(6.0, result.getValue(), 1e-6);
+    }
+
+    // TC130: Cross unit — 10 ft - 6 in = 9.5 ft
+    @Test
+    public void testSubtract_CrossUnit_FeetMinusInches_ResultInFeet() {
+        Quantity<LengthUnit> tenFeet  = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> sixInch  = new Quantity<>(6.0, LengthUnit.INCHES);
+        Quantity<LengthUnit> result   = tenFeet.subtract(sixInch);
+        assertEquals(9.5, result.getValue(), 1e-6);
+    }
+
+    // TC131: Explicit target — 10 ft - 6 in → in INCHES = 114 in
+    @Test
+    public void testSubtract_ExplicitTarget_FeetMinusInches_InInches() {
+        Quantity<LengthUnit> tenFeet = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> sixInch = new Quantity<>(6.0, LengthUnit.INCHES);
+        Quantity<LengthUnit> result  = tenFeet.subtract(sixInch, LengthUnit.INCHES);
+        assertEquals(114.0, result.getValue(), 1e-6);
+    }
+
+    // TC132: Negative result — 2 ft - 5 ft = -3 ft
+    @Test
+    public void testSubtract_NegativeResult() {
+        Quantity<LengthUnit> two  = new Quantity<>(2.0, LengthUnit.FEET);
+        Quantity<LengthUnit> five = new Quantity<>(5.0, LengthUnit.FEET);
+        Quantity<LengthUnit> result = two.subtract(five);
+        assertEquals(-3.0, result.getValue(), 1e-6);
+    }
+
+    // TC133: Zero result — 5 ft - 5 ft = 0 ft
+    @Test
+    public void testSubtract_ZeroResult() {
+        Quantity<LengthUnit> a = new Quantity<>(5.0, LengthUnit.FEET);
+        Quantity<LengthUnit> b = new Quantity<>(5.0, LengthUnit.FEET);
+        Quantity<LengthUnit> result = a.subtract(b);
+        assertEquals(0.0, result.getValue(), 1e-6);
+    }
+
+    // TC134: Zero operand — 5 ft - 0 ft = 5 ft
+    @Test
+    public void testSubtract_ZeroOperand_NoChange() {
+        Quantity<LengthUnit> five = new Quantity<>(5.0, LengthUnit.FEET);
+        Quantity<LengthUnit> zero = new Quantity<>(0.0, LengthUnit.FEET);
+        Quantity<LengthUnit> result = five.subtract(zero);
+        assertEquals(5.0, result.getValue(), 1e-6);
+    }
+
+    // TC135: Negative operand — 5 ft - (-2 ft) = 7 ft
+    @Test
+    public void testSubtract_NegativeOperand() {
+        Quantity<LengthUnit> five   = new Quantity<>(5.0, LengthUnit.FEET);
+        Quantity<LengthUnit> negTwo = new Quantity<>(-2.0, LengthUnit.FEET);
+        Quantity<LengthUnit> result = five.subtract(negTwo);
+        assertEquals(7.0, result.getValue(), 1e-6);
+    }
+
+    // TC136: Non-commutativity — A - B != B - A
+    @Test
+    public void testSubtract_NonCommutativity() {
+        Quantity<LengthUnit> a = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> b = new Quantity<>(3.0, LengthUnit.FEET);
+        Quantity<LengthUnit> ab = a.subtract(b);
+        Quantity<LengthUnit> ba = b.subtract(a);
+        assertFalse(ab.equals(ba));
+    }
+
+    // TC137: Large values — 10000 kg - 3000 kg = 7000 kg
+    @Test
+    public void testSubtract_LargeValues() {
+        Quantity<WeightUnit> big   = new Quantity<>(10000.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> small = new Quantity<>(3000.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> result = big.subtract(small);
+        assertEquals(7000.0, result.getValue(), 1e-6);
+    }
+
+    // TC138: Small values — 0.5 L - 0.2 L = 0.3 L
+    @Test
+    public void testSubtract_SmallValues() {
+        Quantity<VolumeUnit> a = new Quantity<>(0.5, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> b = new Quantity<>(0.2, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> result = a.subtract(b);
+        assertEquals(0.3, result.getValue(), 1e-6);
+    }
+
+    // TC139: Null operand → IllegalArgumentException
+    @Test
+    public void testSubtract_NullOperand_ThrowsException() {
+        Quantity<LengthUnit> a = new Quantity<>(5.0, LengthUnit.FEET);
+        assertThrows(IllegalArgumentException.class, () -> a.subtract(null));
+    }
+
+    // TC140: Null target unit → IllegalArgumentException
+    @Test
+    public void testSubtract_NullTargetUnit_ThrowsException() {
+        Quantity<LengthUnit> a = new Quantity<>(5.0, LengthUnit.FEET);
+        Quantity<LengthUnit> b = new Quantity<>(2.0, LengthUnit.FEET);
+        assertThrows(IllegalArgumentException.class, () -> a.subtract(b, null));
+    }
+
+    // TC141: Immutability — original objects unchanged after subtract
+    @Test
+    public void testSubtract_Immutability() {
+        Quantity<LengthUnit> a = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> b = new Quantity<>(3.0, LengthUnit.FEET);
+        a.subtract(b);
+        assertEquals(10.0, a.getValue(), 1e-6);
+        assertEquals(3.0, b.getValue(), 1e-6);
+    }
+
+    // TC142: Volume subtraction — 5 L - 500 mL = 4.5 L
+    @Test
+    public void testSubtract_Volume_CrossUnit_LitreMinusMl() {
+        Quantity<VolumeUnit> fiveLitres  = new Quantity<>(5.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> fiveHundMl  = new Quantity<>(500.0, VolumeUnit.MILLILITRE);
+        Quantity<VolumeUnit> result      = fiveLitres.subtract(fiveHundMl);
+        assertEquals(4.5, result.getValue(), 1e-6);
+    }
+
+    // TC143: Chained subtraction — 10 ft - 2 ft - 3 ft = 5 ft
+    @Test
+    public void testSubtract_ChainedOperations() {
+        Quantity<LengthUnit> ten   = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> two   = new Quantity<>(2.0, LengthUnit.FEET);
+        Quantity<LengthUnit> three = new Quantity<>(3.0, LengthUnit.FEET);
+        Quantity<LengthUnit> result = ten.subtract(two).subtract(three);
+        assertEquals(5.0, result.getValue(), 1e-6);
+    }
+
+    // TC144: Addition inverse — (A + B) - B == A
+    @Test
+    public void testSubtract_AdditionInverseProperty() {
+        Quantity<WeightUnit> a = new Quantity<>(5.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> b = new Quantity<>(3.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> sum  = a.add(b);
+        Quantity<WeightUnit> back = sum.subtract(b);
+        assertEquals(a.getValue(), back.getValue(), 1e-6);
+    }
+
+    // ==================== UC12: Division Tests ====================
+
+    // TC145: Same unit — 10 ft / 2 ft = 5.0
+    @Test
+    public void testDivide_SameUnit_FeetDividedByFeet() {
+        Quantity<LengthUnit> ten = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> two = new Quantity<>(2.0, LengthUnit.FEET);
+        assertEquals(5.0, ten.divide(two), 1e-6);
+    }
+
+    // TC146: Cross unit — 24 in / 2 ft = 1.0
+    @Test
+    public void testDivide_CrossUnit_InchesOverFeet_RatioOne() {
+        Quantity<LengthUnit> twentyFourIn = new Quantity<>(24.0, LengthUnit.INCHES);
+        Quantity<LengthUnit> twoFeet      = new Quantity<>(2.0, LengthUnit.FEET);
+        assertEquals(1.0, twentyFourIn.divide(twoFeet), 1e-6);
+    }
+
+    // TC147: Ratio > 1 — 10 kg / 2 kg = 5.0
+    @Test
+    public void testDivide_RatioGreaterThanOne() {
+        Quantity<WeightUnit> ten = new Quantity<>(10.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> two = new Quantity<>(2.0, WeightUnit.KILOGRAM);
+        assertEquals(5.0, ten.divide(two), 1e-6);
+    }
+
+    // TC148: Ratio < 1 — 2 kg / 10 kg = 0.2
+    @Test
+    public void testDivide_RatioLessThanOne() {
+        Quantity<WeightUnit> two = new Quantity<>(2.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> ten = new Quantity<>(10.0, WeightUnit.KILOGRAM);
+        assertEquals(0.2, two.divide(ten), 1e-6);
+    }
+
+    // TC149: Ratio == 1 — 5 L / 5 L = 1.0
+    @Test
+    public void testDivide_RatioEqualsOne() {
+        Quantity<VolumeUnit> a = new Quantity<>(5.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> b = new Quantity<>(5.0, VolumeUnit.LITRE);
+        assertEquals(1.0, a.divide(b), 1e-6);
+    }
+
+    // TC150: Non-commutativity — 10/2 != 2/10
+    @Test
+    public void testDivide_NonCommutativity() {
+        Quantity<LengthUnit> ten = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> two = new Quantity<>(2.0, LengthUnit.FEET);
+        assertNotEquals(ten.divide(two), two.divide(ten), 1e-6);
+    }
+
+    // TC151: Divide by zero → ArithmeticException
+    @Test
+    public void testDivide_ByZero_ThrowsArithmeticException() {
+        Quantity<LengthUnit> ten  = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> zero = new Quantity<>(0.0, LengthUnit.FEET);
+        assertThrows(ArithmeticException.class, () -> ten.divide(zero));
+    }
+
+    // TC152: Null operand → IllegalArgumentException
+    @Test
+    public void testDivide_NullOperand_ThrowsException() {
+        Quantity<LengthUnit> a = new Quantity<>(5.0, LengthUnit.FEET);
+        assertThrows(IllegalArgumentException.class, () -> a.divide(null));
+    }
+
+    // TC153: Large ratio — 1000 kg / 1 g
+    @Test
+    public void testDivide_LargeRatio() {
+        Quantity<WeightUnit> thousandKg = new Quantity<>(1000.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> oneGram    = new Quantity<>(1.0, WeightUnit.GRAM);
+        assertEquals(1_000_000.0, thousandKg.divide(oneGram), 1e-6);
+    }
+
+    // TC154: Small ratio — 1 mL / 1 L = 0.001
+    @Test
+    public void testDivide_SmallRatio() {
+        Quantity<VolumeUnit> oneMl    = new Quantity<>(1.0, VolumeUnit.MILLILITRE);
+        Quantity<VolumeUnit> oneLitre = new Quantity<>(1.0, VolumeUnit.LITRE);
+        assertEquals(0.001, oneMl.divide(oneLitre), 1e-6);
+    }
+
+    // TC155: Immutability — original objects unchanged after divide
+    @Test
+    public void testDivide_Immutability() {
+        Quantity<LengthUnit> a = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> b = new Quantity<>(2.0, LengthUnit.FEET);
+        a.divide(b);
+        assertEquals(10.0, a.getValue(), 1e-6);
+        assertEquals(2.0, b.getValue(), 1e-6);
+    }
+
+    // TC156: Precision — 1 ft / 3 ft ≈ 0.3333
+    @Test
+    public void testDivide_Precision() {
+        Quantity<LengthUnit> one   = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> three = new Quantity<>(3.0, LengthUnit.FEET);
+        assertEquals(1.0 / 3.0, one.divide(three), 1e-6);
+    }
+
+    // TC157: Integration — subtract then divide
+    @Test
+    public void testIntegration_SubtractThenDivide() {
+        Quantity<LengthUnit> ten  = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> four = new Quantity<>(4.0, LengthUnit.FEET);
+        Quantity<LengthUnit> two  = new Quantity<>(2.0, LengthUnit.FEET);
+        // (10 - 4) / 2 = 3.0
+        Quantity<LengthUnit> diff = ten.subtract(four);
+        assertEquals(3.0, diff.divide(two), 1e-6);
+    }
+
+    // TC158: All categories — weight subtraction
+    @Test
+    public void testSubtract_AllCategories_Weight() {
+        Quantity<WeightUnit> a = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> b = new Quantity<>(500.0, WeightUnit.GRAM);
+        Quantity<WeightUnit> result = a.subtract(b);
+        assertEquals(0.5, result.getValue(), 1e-6);
+    }
+
+    // TC159: All categories — volume division
+    @Test
+    public void testDivide_AllCategories_Volume() {
+        Quantity<VolumeUnit> three = new Quantity<>(3.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> one   = new Quantity<>(1.0, VolumeUnit.LITRE);
+        assertEquals(3.0, three.divide(one), 1e-6);
+    }
 }
+
 
 
